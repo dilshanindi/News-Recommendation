@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-public class UserHomeControl {
+public class  UserHomeControl {
 
     @FXML
     private ComboBox<String> categoryComboBox;

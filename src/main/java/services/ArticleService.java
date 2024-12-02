@@ -8,22 +8,38 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class ArticleService {
 
     private static final String API_URL = "https://newsapi.org/v2/everything?q=keyword&apiKey=b52f49e93b08454f889bf1b6e08ead16";
+    private final List<Article> articles; // Local storage for articles (could be fetched from API or file)
 
+    // Constructor to initialize the articles list
+    public ArticleService() {
+        this.articles = new ArrayList<>();
+    }
+
+    /**
+     * Fetch articles from the API.
+     *
+     * @return A list of articles fetched from the API.
+     */
     public List<Article> fetchArticlesFromAPI() {
-        List<Article> articles = new ArrayList<>();
+        List<Article> fetchedArticles = new ArrayList<>();
 
         try {
+            // Convert API_URL to URI and then to URL
+            URI uri = URI.create(API_URL);
+            URL url = uri.toURL();
+
             // Connect to the API
-            URL url = new URL(API_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.connect();
@@ -35,11 +51,11 @@ public class ArticleService {
             } else {
                 // Read the API response
                 StringBuilder inline = new StringBuilder();
-                Scanner scanner = new Scanner(url.openStream());
-                while (scanner.hasNext()) {
-                    inline.append(scanner.nextLine());
+                try (Scanner scanner = new Scanner(url.openStream())) {
+                    while (scanner.hasNext()) {
+                        inline.append(scanner.nextLine());
+                    }
                 }
-                scanner.close();
 
                 // Parse the JSON data
                 JSONObject jsonResponse = new JSONObject(inline.toString());
@@ -54,39 +70,90 @@ public class ArticleService {
                     LocalDateTime publishedDate = LocalDateTime.now(); // Placeholder for published date
 
                     // Create and add an Article object to the list
-                    articles.add(new Article(id, title, description, publishedDate));
+                    fetchedArticles.add(new Article(id, title, description, publishedDate, "Uncategorized"));
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return articles;
+        // Add fetched articles to the local storage
+        this.articles.addAll(fetchedArticles);
+        return fetchedArticles;
     }
 
+    /**
+     * Fetch articles by category.
+     *
+     * @param category The category to filter articles by.
+     * @return A list of articles matching the specified category.
+     */
     public List<Article> fetchArticlesByCategory(String category) {
-        List<Article> filteredArticles = new ArrayList<>();
+        if (category == null || category.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category cannot be null or empty.");
+        }
 
-        try (BufferedReader br = new BufferedReader(new FileReader("categorized_articles.csv"))) {
+        // Filter articles based on the category
+        return articles.stream()
+                .filter(article -> category.equalsIgnoreCase(article.getCategory()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Load articles from a CSV file.
+     *
+     * @param filePath The file path to the CSV file.
+     * @return A list of articles loaded from the file.
+     */
+    public List<Article> loadArticlesFromCSV(String filePath) {
+        List<Article> loadedArticles = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
-            br.readLine(); // Skip header
-
-            int idCounter = 0; // To generate unique IDs for each article
+            br.readLine(); // Skip the header line
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(",");
-                String id = "CSV_" + idCounter++; // Generate unique ID for CSV articles
-                String title = values[0];
-                String description = values[1];
-                String articleCategory = values[2];
+                String id = values[0].trim();
+                String title = values[1].trim();
+                String description = values.length > 2 ? values[2].trim() : "No description available";
                 LocalDateTime publishedDate = LocalDateTime.now(); // Placeholder for published date
 
-                if (articleCategory.equalsIgnoreCase(category)) {
-                    filteredArticles.add(new Article(id, title, description, publishedDate));
-                }
+                loadedArticles.add(new Article(id, title, description, publishedDate, "Uncategorized"));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Error reading the CSV file: " + e.getMessage());
         }
-        return filteredArticles;
+
+        // Add loaded articles to the local storage
+        this.articles.addAll(loadedArticles);
+        return loadedArticles;
+    }
+
+    /**
+     * Get all articles.
+     *
+     * @return A list of all articles in the service.
+     */
+    public List<Article> getAllArticles() {
+        return new ArrayList<>(articles); // Return a copy to prevent modification
+    }
+
+    /**
+     * Add an article to the service.
+     *
+     * @param article The article to add.
+     */
+    public void addArticle(Article article) {
+        if (article == null) {
+            throw new IllegalArgumentException("Article cannot be null.");
+        }
+        articles.add(article);
+    }
+
+    /**
+     * Clear all articles (useful for testing or resetting).
+     */
+    public void clearArticles() {
+        articles.clear();
     }
 }

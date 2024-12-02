@@ -6,5 +6,6 @@ module com.example.newsrec {
 
 
     opens com.example.newsrec to javafx.fxml;
+    opens controllers to javafx.fxml;
     exports com.example.newsrec;
 }
