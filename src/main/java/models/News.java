@@ -10,6 +10,7 @@ public class News {
 
     // Constructor for creating a news article (for database insertion, no ID)
     public News(String headline, String summary, String body) {
+        this.articleId = 0;
         this.headline = headline;
         this.summary = summary;
         this.body = body;
@@ -35,7 +36,7 @@ public class News {
     }
 
     // Getter for summary (brief description)
-    public String getSummary() {
+    public String getArticleSummary() {
         return summary;
     }
 

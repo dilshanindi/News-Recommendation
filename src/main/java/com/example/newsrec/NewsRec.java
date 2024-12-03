@@ -17,30 +17,31 @@ public class NewsRec {
 
     // Set the primary stage for the application
     public static void initializeStage(Stage stage) {
-        mainStage = stage;
+        mainStage = stage; // Ensure this is called before showing any scenes
     }
 
     // Display the login page
-    public void showLoginView() {
+    public void showLoginPage() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/newsrecsys/login.fxml"));
             Scene scene = new Scene(loader.load());
             mainStage.setTitle("News Recommendation System - Login");
             mainStage.setScene(scene);
             mainStage.show();
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("Error loading login view: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     // Show the user's home dashboard
-    public void showUserDashboard(Reg user) {
+    public void showUserHomeDashboard (Reg user) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/newsrecsys/user-dashboard.fxml"));
             Scene scene = new Scene(loader.load());
 
             UserHomeControl controller = loader.getController();
-            controller.initializeUserDetails(user);  // Pass user details to the controller
+            controller.setAccountDetails(user.getRole(), user.getUserName()); // Set account details for the user
 
             mainStage.setScene(scene);
             mainStage.setTitle("User Dashboard");
@@ -51,17 +52,17 @@ public class NewsRec {
         }
     }
 
-    // Display the user profile management page
-    public void showUserProfileManagement() {
+    // Display the page for managing the admin profile
+    public void showAdminProfile() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/newsrecsys/user-profile-manage.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/newsrecsys/admin-profile-manage.fxml"));
             Parent root = loader.load();
-
-            mainStage.setTitle("User Profile Management");
             mainStage.setScene(new Scene(root));
+            mainStage.setTitle("Admin Profile Management");
             mainStage.show();
         } catch (IOException e) {
-            System.out.println("Error loading user profile management: " + e.getMessage());
+            System.out.println("Error loading admin profile page: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -71,8 +72,8 @@ public class NewsRec {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/newsrecsys/admin-dashboard.fxml"));
             Scene scene = new Scene(loader.load());
 
-            AdminDashboardController controller = loader.getController();
-            controller.initializeAdminDetails(admin);  // Pass admin details to the controller
+            AdminHomeControl controller = loader.getController();
+            controller.setAdminDetails(admin); // Correct method to set admin details
 
             mainStage.setScene(scene);
             mainStage.setTitle("Admin Dashboard");
@@ -93,19 +94,21 @@ public class NewsRec {
             mainStage.show();
         } catch (IOException e) {
             System.out.println("Error loading admin profile management: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
     // Display the page for creating a new account
-    public void showAccountCreationPage() {
+    public void showAccountCreation() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/newsrecsys/create-account.fxml"));
             Scene scene = new Scene(loader.load());
             mainStage.setTitle("News Recommendation System - Create Account");
             mainStage.setScene(scene);
             mainStage.show();
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.out.println("Error loading account creation page: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

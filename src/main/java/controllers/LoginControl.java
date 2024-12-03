@@ -81,18 +81,21 @@ public class LoginControl {
         }
 
         String userName = databaseHandler.getUserName(email); // Fetch the user's name
-        if (userName == null) {
-            showAlert("Error", "User name could not be retrieved. Please try again.");
+        String userId = databaseHandler.getUserId(email); // Fetch the user's ID
+        if (userName == null || userId == null) {
+            showAlert("Error", "User details could not be retrieved. Please try again.");
             return;
         }
 
-        navigateToHomePage(userName, userType);
+        // Create Reg object with retrieved details
+        models.Reg userReg = new models.Reg(userId, userName, email, password); // Pass the required parameters to Reg
+        navigateToHomePage(userReg, userType);
     }
 
-    private void navigateToHomePage(String userName, String userType) {
+    private void navigateToHomePage(models.Reg userReg, String userType) {
         if ("user".equalsIgnoreCase(userType)) {
-            newsRecSystem.showUserHomePage(userName, userType);
-
+            // Pass the Reg object to showUserHomeDashboard
+            newsRecSystem.showUserHomeDashboard(userReg);
         } else {
             showAlert("Error", "Unexpected user type: " + userType);
         }
@@ -104,7 +107,7 @@ public class LoginControl {
     }
 
     private void navigateToCreateAccount() {
-        newsRecSystem.showCreateAccountPage();
+        newsRecSystem.showAccountCreation();
     }
 
     private void showAlert(String title, String message) {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.NewsPopupControl">
+    <children>
+        <Label fx:id="titleLabel" layoutX="25.0" layoutY="15.0" prefHeight="57.0" prefWidth="615.0">
+            <font>
+                <Font size="15.0" />
+            </font>
+        </Label>
+        <TextArea fx:id="descriptionTextArea" layoutX="25.0" layoutY="124.0" prefHeight="350.0" prefWidth="650.0" promptText="description" />
+        <Button layoutX="645.0" layoutY="2.0" mnemonicParsing="false" onAction="#handleClose" prefHeight="41.0" prefWidth="53.0" text="X" />
+        <Button layoutX="575.0" layoutY="99.0" mnemonicParsing="false" text="Like" />
+        <Button layoutX="619.0" layoutY="99.0" mnemonicParsing="false" text="disslike" />
+    </children>
+</AnchorPane>

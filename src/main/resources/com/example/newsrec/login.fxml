@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox alignment="CENTER" prefHeight="742.0" prefWidth="1048.0" spacing="20.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.LoginControl">
+    <Label>
+        <graphic>
+            <AnchorPane>
+                <children>
+                    <ImageView fitHeight="716.0" fitWidth="1048.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                        </image>
+                    </ImageView>
+                    <ImageView fitHeight="355.0" fitWidth="355.0" layoutX="104.0" layoutY="235.0" opacity="0.18" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                        </image>
+                    </ImageView>
+                    <Text layoutX="269.0" layoutY="77.0" strokeType="OUTSIDE" strokeWidth="0.0" text="News Recommendation System">
+                        <font>
+                            <Font name="Gabriola" size="40.0" />
+                        </font>
+                    </Text>
+                    <Text layoutX="235.0" layoutY="277.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Login Here">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                    </Text>
+                    <Text layoutX="154.0" layoutY="351.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Email : ">
+                        <font>
+                            <Font name="System Bold" size="19.0" />
+                        </font>
+                    </Text>
+                    <Text layoutX="120.0" layoutY="395.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Password : ">
+                        <font>
+                            <Font name="System Bold" size="19.0" />
+                        </font>
+                    </Text>
+                    <!-- Input Fields -->
+                    <TextField fx:id="emailField" layoutX="226.0" layoutY="332.0" prefHeight="25.0" prefWidth="200.0" promptText="Email" />
+                    <PasswordField fx:id="passwordField" layoutX="226.0" layoutY="376.0" prefHeight="25.0" prefWidth="200.0" promptText="Password" />
+                    <!-- Buttons with onAction -->
+                    <Button layoutX="327.0" layoutY="429.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="25.0" prefWidth="99.0" text="Login">
+                        <font>
+                            <Font name="System Bold" size="12.0" />
+                        </font>
+                    </Button>
+                    <Button layoutX="269.0" layoutY="429.0" mnemonicParsing="false" onAction="#handleClear" text="Clear">
+                        <font>
+                            <Font name="System Bold" size="12.0" />
+                        </font>
+                    </Button>
+                    <Text layoutX="397.0" layoutY="501.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Or" />
+                    <Button layoutX="294.0" layoutY="539.0" mnemonicParsing="false" onAction="#handleCreateAccount" text="Create New Account">
+                        <font>
+                            <Font name="System Bold" size="12.0" />
+                        </font>
+                    </Button>
+                </children>
+            </AnchorPane>
+        </graphic>
+    </Label>
+    <padding>
+        <Insets top="20.0" />
+    </padding>
+</VBox>

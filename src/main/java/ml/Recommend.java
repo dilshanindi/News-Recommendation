@@ -1,57 +1,65 @@
 package ml;
 
-
-import models.UserInteraction;
+import models.Interact;
 import models.Article;
 import services.ArticleService;
 import utils.DatabaseHandler;
-import utils.NoInteractionsException;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
-public class RecommendationEngine {
+public class Recommend {
     private final DatabaseHandler databaseHandler;
     private final ArticleService articleService;
     private final CategoryScoreCalculator scoreCalculator;
 
-    public RecommendationEngine() {
+    public Recommend() {
         this.databaseHandler = new DatabaseHandler();
         this.articleService = new ArticleService();
         this.scoreCalculator = new CategoryScoreCalculator();
     }
 
     // Fetch user interaction data
-    public List<Interact> fetchUserInteractions(int userId) throws NoInteractionsException {
+    public List<Interact> fetchUserInteractions(int userId) {
         String query = "SELECT * FROM userinteractions WHERE user_id = ?";
-        List<UserInteraction> interactions = databaseHandler.executeQueryList(query, resultSet -> {
-            return new UserInteraction(
-                    resultSet.getInt("user_id"),
-                    resultSet.getInt("idNews"),
-                    resultSet.getString("interaction_type"),
-                    resultSet.getString("category")
-        }, userId);
+        List<Interact> interactions = new ArrayList<>();
 
-        if (interactions.isEmpty()) {
-            throw new NoInteractionsException("No interactions found for user ID " + userId);
+        try (ResultSet resultSet = databaseHandler.executeQuery(query, userId)) {
+            while (resultSet.next()) {
+                interactions.add(new Interact(
+                        resultSet.getInt("user_id"),
+                        resultSet.getInt("idNews"),
+                        resultSet.getString("interaction_type"),
+                        resultSet.getString("category")
+
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+
         return interactions;
     }
 
     // Get recommended articles based on interaction history
     public List<Article> getRecommendations(int userId) {
-        try {
-            List<UserInteraction> interactions = fetchUserInteractions(userId);
-            Map<String, Integer> categoryScores = scoreCalculator.calculateCategoryScores(interactions);
+        List<Interact> interactions = fetchUserInteractions(userId);
 
-            // Identify top categories
-            List<String> preferredCategories = getTopCategories(categoryScores);
-
-            // Fetch articles related to top categories
-            return articleService.fetchArticlesByCategories(preferredCategories, userId);
-        } catch (NoInteractionsException e) {
-            System.err.println(e.getMessage());
+        if (interactions.isEmpty()) {
+            System.err.println("No interactions found for user ID " + userId);
             return Collections.emptyList();  // Return empty list if no interactions
         }
+
+        // Calculate category scores
+        Map<String, Integer> categoryScores = scoreCalculator.calculateCategoryScores(interactions);
+
+        // Identify top categories
+        List<String> preferredCategories = getTopCategories(categoryScores);
+
+
+        // Fetch articles related to top categories
+        return articleService.fetchArticlesByCategories(preferredCategories, userId);
     }
 
     // Helper method to sort categories by score and get the top ones
@@ -65,12 +73,11 @@ public class RecommendationEngine {
 
     // Inner class responsible for calculating category scores
     private static class CategoryScoreCalculator {
-
         // Calculate category scores based on interactions
-        public Map<String, Integer> calculateCategoryScores(List<UserInteraction> interactions) {
+        public Map<String, Integer> calculateCategoryScores(List<Interact> interactions) {
             Map<String, Integer> scores = new HashMap<>();
 
-            for (UserInteraction interaction : interactions) {
+            for (Interact interaction : interactions) {
                 int score = determineInteractionScore(interaction.getInteractionType());
                 scores.merge(interaction.getCategory(), score, Integer::sum);
             }

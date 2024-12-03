@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<SplitPane dividerPositions="0.1806883365200765" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="742.0" prefWidth="1048.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.UserProfile">
+    <items>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="740.0" prefWidth="185.0">
+            <children>
+                <Button fx:id="logOutButton" layoutX="48.0" layoutY="676.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="90.0" text="Log Out">
+                    <font>
+                        <Font name="System Bold" size="15.0" />
+                    </font>
+                </Button>
+                <Button fx:id="profileManageButton" layoutX="25.0" layoutY="615.0" mnemonicParsing="false" prefHeight="43.0" prefWidth="137.0" text="Home Page">
+                    <font>
+                        <Font name="System Bold" size="15.0" />
+                    </font>
+                </Button>
+                <Label fx:id="accountTypeLabel" layoutX="36.0" layoutY="14.0" prefHeight="27.0" prefWidth="116.0" text=" ">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+                <Label fx:id="welcomeLabel" layoutX="27.0" layoutY="55.0" text="WELCOME">
+                    <font>
+                        <Font name="System Bold" size="27.0" />
+                    </font>
+                </Label>
+                <Label fx:id="userNameLabel" layoutX="57.0" layoutY="86.0" prefHeight="27.0" prefWidth="116.0" textFill="#b91e1e">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+            </children>
+        </AnchorPane>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="740.0" prefWidth="857.0">
+            <children>
+                <ImageView fitHeight="751.0" fitWidth="1120.0" layoutY="-3.0" pickOnBounds="true" preserveRatio="true" styleClass="image-view">
+                    <image>
+                    </image>
+                </ImageView>
+                <ImageView fitHeight="524.0" fitWidth="739.0" layoutX="55.0" layoutY="160.0" opacity="0.26" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                    </image></ImageView>
+                <Text layoutX="236.0" layoutY="50.0" strokeType="OUTSIDE" strokeWidth="0.0" text="News Recommendation System">
+                    <font>
+                        <Font name="Gabriola" size="40.0" />
+                    </font>
+                </Text>
+                <Text layoutX="74.0" layoutY="218.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="NIC :">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Text>
+                <TextField fx:id="nicTextField" layoutX="171.0" layoutY="198.0" promptText="NIC" styleClass="text-field" />
+                <Text layoutX="74.0" layoutY="271.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Name : ">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Text>
+                <TextField fx:id="nameTextField" layoutX="171.0" layoutY="251.0" promptText="Full Name" styleClass="text-field" />
+                <Text layoutX="74.0" layoutY="327.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Age : ">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Text>
+                <TextField fx:id="ageTextField" layoutX="171.0" layoutY="307.0" promptText="Age" styleClass="text-field" />
+                <Text layoutX="74.0" layoutY="382.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Email : ">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Text>
+                <TextField fx:id="emailTextField" layoutX="171.0" layoutY="362.0" promptText="Email" styleClass="text-field" />
+                <Text layoutX="74.0" layoutY="526.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="Previous Password : ">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Text>
+                <PasswordField fx:id="currentPasswordField" layoutX="246.0" layoutY="507.0" promptText="Previous Password" styleClass="text-field" />
+                <Label layoutX="320.0" layoutY="111.0" text="Update Your Profile here ">
+                    <font>
+                        <Font name="System Italic" size="17.0" />
+                    </font>
+                </Label>
+                <Line endX="32.0" endY="171.0" layoutX="435.0" layoutY="237.0" startX="32.0" startY="-51.0" />
+                <Button fx:id="updateButton" layoutX="655.0" layoutY="334.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="56.0" text="Update" />
+                <Label layoutX="74.0" layoutY="462.0" text="Do you want to change the password? ">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+                <Text layoutX="74.0" layoutY="567.0" strokeType="OUTSIDE" strokeWidth="0.0" styleClass="text" text="New Password : ">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Text>
+                <PasswordField fx:id="newPasswordField" layoutX="246.0" layoutY="548.0" promptText="New Password" styleClass="text-field" />
+                <Button fx:id="changePasswordButton" layoutX="265.0" layoutY="600.0" mnemonicParsing="false" text="Change My Password" />
+                <Label layoutX="505.0" layoutY="462.0" text="You can clear your history">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+                <Button fx:id="clearHistoryButton" layoutX="619.0" layoutY="535.0" mnemonicParsing="false" text="Clear History">
+                    <font>
+                        <Font size="13.0" />
+                    </font>
+                </Button>
+                <Button fx:id="deleteAccountButton" layoutX="594.0" layoutY="379.0" mnemonicParsing="false" text="Delete my Account" />
+                <Label layoutX="76.0" layoutY="173.0" text="Enter Your NIC">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+            </children>
+        </AnchorPane>
+    </items>
+</SplitPane>

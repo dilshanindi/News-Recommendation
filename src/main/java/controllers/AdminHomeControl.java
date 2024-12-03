@@ -42,9 +42,9 @@ public class AdminHomeControl {
     @FXML
     public void initialize() {
         // Fetch logged-in user details from the session
-        Manager session = Manager.getSessionInstance();
-        loggedInUserName = session.getLoggedInUserName();
-        loggedInUserType = session.getUserType();
+        Manager session = Manager.getInstance(); // Use getInstance() instead of getSessionInstance()
+        loggedInUserName = session.getLoggedInUserName(); // Use the correct getter
+        loggedInUserType = session.getLoggedInUserType(); // Use the correct getter
 
         if (loggedInUserName == null || loggedInUserType == null) {
             // Show error if session details are missing and log the user out
@@ -93,8 +93,8 @@ public class AdminHomeControl {
     private void handleLogOut() {
         try {
             // Clear session and show the login page
-            Manager.clearSession();
-            newsRecommendationSystem.showLoginPage();
+            Manager.getInstance().clearSession(); // Clear session via the correct instance
+            newsRecommendationSystem.showLoginPage(); // Ensure this method exists in NewsRec
         } catch (Exception e) {
             Alerts.showAlert("Error", "Failed to log out: " + e.getMessage(), Alert.AlertType.ERROR);
         }

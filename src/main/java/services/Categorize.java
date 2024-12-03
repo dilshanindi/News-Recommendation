@@ -92,9 +92,9 @@ public class Categorize {
 
     // Checks if a keyword is present in the news title, description, or content
     private boolean isKeywordInNews(News news, String keyword) {
-        return news.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
-                news.getDescription().toLowerCase().contains(keyword.toLowerCase()) ||
-                news.getContent().toLowerCase().contains(keyword.toLowerCase());
+        return news.getHeadline().toLowerCase().contains(keyword.toLowerCase()) ||
+                news.getArticleDetails().toLowerCase().contains(keyword.toLowerCase()) ||
+                news.getBody().toLowerCase().contains(keyword.toLowerCase());
     }
 
     // Saves the categorized news into the `news_categorized` table
@@ -106,10 +106,10 @@ public class Categorize {
 
         try (PreparedStatement pstmt = conn.prepareStatement(insertSQL)) {
             for (News news : categorizedNewsList) {
-                pstmt.setInt(1, news.getId());
-                pstmt.setString(2, news.getTitle());
-                pstmt.setString(3, news.getDescription());
-                pstmt.setString(4, news.getContent());
+                pstmt.setInt(1, news.getArticleId());
+                pstmt.setString(2, news.getHeadline());
+                pstmt.setString(3, news.getArticleDetails());
+                pstmt.setString(4, news.getBody());
                 pstmt.setString(5, news.getCategory());
                 pstmt.addBatch();
             }

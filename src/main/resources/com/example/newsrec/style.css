@@ -1,0 +1,53 @@
+/* styles.css */
+
+/* Style for the main VBox */
+.root {
+    -fx-background-color: #f4f4f9; /* Light background color */
+    -fx-spacing: 20px;
+    -fx-alignment: center;
+    -fx-padding: 20px;
+}
+
+/* Style for Labels and Text elements */
+.label, .text {
+    -fx-text-fill: #333333; /* Darker color for text */
+    -fx-font-family: "Arial";
+    -fx-font-size: 18px;
+}
+
+.label .text {
+    -fx-font-weight: bold;
+}
+
+/* Styling the title text */
+.title-text {
+    -fx-font-family: "Gabriola";
+    -fx-font-size: 40px;
+    -fx-fill: #2a2a2a; /* Dark gray for contrast */
+    -fx-font-weight: bold;
+}
+
+/* TextField styling */
+.text-field {
+    -fx-background-color: #ffffff; /* White background */
+    -fx-border-color: #d3d3d3; /* Light gray border */
+    -fx-border-radius: 5;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 16px;
+}
+
+/* RadioButton styling */
+.radio-button {
+    -fx-font-size: 15px;
+    -fx-text-fill: #333333; /* Darker text */
+}
+
+/* Style for the AnchorPane */
+.anchor-pane {
+    -fx-background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent overlay */
+}
+
+/* Image styling (optional) */
+.image-view {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.5, 0, 0);
+}

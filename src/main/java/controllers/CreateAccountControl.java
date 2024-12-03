@@ -7,6 +7,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import utils.DatabaseHandler;
 
+
 public class CreateAccountControl {
 
     @FXML

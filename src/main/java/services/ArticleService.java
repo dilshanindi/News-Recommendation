@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class ArticleService {
 
-    private static final String API_URL = "https://newsapi.org/v2/everything?q=keyword&apiKey=b52f49e93b08454f889bf1b6e08ead16";
+    private static final String API_URL = "https://newsapi.org/v2/everything?q=keyword&apiKey=affff0ceb44547678ac4258f55c262a2";
     private final List<Article> articles; // Local storage for articles (could be fetched from API or file)
 
     // Constructor to initialize the articles list
@@ -83,7 +83,25 @@ public class ArticleService {
     }
 
     /**
-     * Fetch articles by category.
+     * Fetch articles by multiple categories.
+     *
+     * @param categories A list of categories to filter articles by.
+     * @param userId     The ID of the user (optional, for extended functionality if needed).
+     * @return A list of articles matching the specified categories.
+     */
+    public List<Article> fetchArticlesByCategories(List<String> categories, int userId) {
+        if (categories == null || categories.isEmpty()) {
+            throw new IllegalArgumentException("Categories list cannot be null or empty.");
+        }
+
+        // Filter articles based on the provided categories
+        return articles.stream()
+                .filter(article -> categories.contains(article.getCategory()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Fetch articles by a single category.
      *
      * @param category The category to filter articles by.
      * @return A list of articles matching the specified category.
@@ -93,10 +111,7 @@ public class ArticleService {
             throw new IllegalArgumentException("Category cannot be null or empty.");
         }
 
-        // Filter articles based on the category
-        return articles.stream()
-                .filter(article -> category.equalsIgnoreCase(article.getCategory()))
-                .collect(Collectors.toList());
+        return fetchArticlesByCategories(List.of(category), 0);
     }
 
     /**

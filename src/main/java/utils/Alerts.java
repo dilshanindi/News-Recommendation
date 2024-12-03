@@ -1,6 +1,5 @@
 package utils;
 
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
@@ -10,9 +9,15 @@ public class Alerts {
 
     // Show alert messages with an option to add custom buttons
     public static void showAlert(String title, String message, Alert.AlertType alertType, ButtonType... buttons) {
-        Alert alert = new Alert(alertType, message, buttons.length > 0 ? buttons : ButtonType.OK);
+        Alerts alert = new Alerts(alertType); // Create an alert with the specified type
         alert.setTitle(title);
-        alert.setHeaderText(null);  // Header can be customized if needed
+        alert.setHeaderText(null); // Optional: You can set a header if needed
+        alert.setContentText(message); // Set the alert message
+
+        if (buttons != null && buttons.length > 0) {
+            alert.getButtonTypes().setAll(buttons); // Replace default buttons with custom buttons
+        }
+
         alert.showAndWait();
     }
 

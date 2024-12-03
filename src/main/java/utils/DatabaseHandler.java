@@ -1,7 +1,5 @@
 package utils;
 
-import models.Admin;
-import models.Reg;
 import models.User;
 
 import java.sql.*;
@@ -10,7 +8,7 @@ import java.util.List;
 
 public class DatabaseHandler {
 
-    private static final String DB_URL = "http://localhost/phpmyadmin/index.php?route=/database/structure&db=newsrecommendationdb"; // Replace with your database name
+    private static final String DB_URL = "http://localhost/phpmyadmin/index.php?route=/sql&db=newsrecommendation&table=users&pos=0"; // Correct JDBC URL
 
 
     // Establish a database connection
@@ -18,8 +16,8 @@ public class DatabaseHandler {
         return DriverManager.getConnection(DB_URL);
     }
 
-    public void executeUpdate(String query, Object... params) {
-        try (Connection connection = DriverManager.getConnection(DB_URL);
+    public boolean executeUpdate(String query, Object... params) {
+        try (Connection connection = connect();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             // Set query parameters
@@ -27,38 +25,183 @@ public class DatabaseHandler {
                 preparedStatement.setObject(i + 1, params[i]);
             }
 
-            // Debug log
-            System.out.println("Executing query: " + query);
-            System.out.println("With parameters:");
-            for (Object param : params) {
-                System.out.println(param);
+            // Execute the update query
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Query executed successfully.");
+                return true; // Return true if the update was successful
+            } else {
+                System.out.println("No rows affected.");
+                return false; // Return false if no rows were updated
             }
 
-            // Execute the update query
-            preparedStatement.executeUpdate();
-            System.out.println("Query executed successfully.");
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("Failed to execute query: " + query);
+            return false; // Return false if an error occurred
         }
     }
 
-    // Check if NIC is unique for a user (excluding their own record based on email)
-    public boolean isNICUnique(String nic, String email) {
-        String sql = "SELECT 1 FROM users WHERE nic = ? AND email != ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, nic);
-            pstmt.setString(2, email);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return !rs.next(); // True if no other user has this NIC
+    public String executeQuerySingleResult(String query, String param) {
+        try (Connection connection = connect(); PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, param);
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString(1); // Return the first column of the first result
             }
         } catch (SQLException e) {
-            System.out.println("Error checking NIC uniqueness: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getUserId(String email) {
+        String query = "SELECT userId FROM users WHERE email = ?";
+
+        try (Connection connection = connect(); PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, email);
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getString("userId");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null; // If no user is found
+    }
+
+
+    // Verify user credentials and return their role
+    public String verifyUser(String email, String password) {
+        String sql = "SELECT role FROM users WHERE email = ? AND password = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            pstmt.setString(2, password);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("role"); // Return the role if the user exists
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error verifying user: " + e.getMessage());
+        }
+        return null; // Return null if verification fails
+    }
+
+    // Retrieve user name by email
+    public String getUserName(String email) {
+        String sql = "SELECT name FROM users WHERE email = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, email);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("name"); // Return the name if found
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching user name: " + e.getMessage());
+        }
+        return null; // Return null if no user is found
+    }
+
+    // Update user details for admin
+    public boolean updateUserDetailsForAdmin(String nic, String name, int age, String email, String role) {
+        String sql = "UPDATE users SET name = ?, age = ?, email = ?, role = ? WHERE nic = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setInt(2, age);
+            pstmt.setString(3, email);
+            pstmt.setString(4, role);
+            pstmt.setString(5, nic);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error updating user details: " + e.getMessage());
             return false;
         }
     }
 
-    // Check if NIC exists in the database
+    // Delete user by NIC
+    public boolean deleteUserByNIC(String nic) {
+        String sql = "DELETE FROM users WHERE nic = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nic);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error deleting user by NIC: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Clear reading history for a user by NIC
+    public boolean clearHistory(String nic) {
+        String sql = "DELETE FROM reading_history WHERE user_nic = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nic);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Error clearing reading history: " + e.getMessage());
+            return false;
+        }
+    }
+    // Add this method to the DatabaseHandler class
+    public ResultSet executeQuery(String query, int userId) throws SQLException {
+        Connection connection = connect(); // Ensure this method establishes a DB connection
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, userId);
+        return statement.executeQuery();
+    }
+
+
+    // Fetch all users from the database
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users";
+
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                String email = rs.getString("email");
+                String name = rs.getString("name");
+                int age = rs.getInt("age");
+                String nic = rs.getString("nic");
+                String role = rs.getString("role");
+
+                // Assuming a User constructor or setter that accepts role
+                User user = new User(email, name, nic, role);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching all users: " + e.getMessage());
+        }
+
+        return users;
+    }
+
+    // Fetch user details by NIC
+    public User getUserByNIC(String nic) {
+        String sql = "SELECT * FROM users WHERE nic = ?";
+        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nic);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String email = rs.getString("email");
+                    String name = rs.getString("name");
+                    int age = rs.getInt("age");
+                    String role = rs.getString("role");
+
+                    return new User(email, name, nic, role);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error fetching user by NIC: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    // Check if NIC exists
     public boolean checkNICExists(String nic) {
         String sql = "SELECT nic FROM users WHERE nic = ?";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -72,8 +215,8 @@ public class DatabaseHandler {
         }
     }
 
-    // Insert a new user into the database
-    public boolean insertUser(String nic, String name, int age, String email, String password) {
+    // Insert a new user
+    public boolean addUser(String nic, String name, int age, String email, String password) {
         String sql = "INSERT INTO users (nic, name, age, email, password, role) VALUES (?, ?, ?, ?, ?, 'user')";
         try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, nic);
@@ -86,200 +229,5 @@ public class DatabaseHandler {
             System.out.println("Error inserting user: " + e.getMessage());
             return false;
         }
-    }
-
-    // Verify user credentials and return their role
-    public String verifyUser(String email, String password) {
-        String sql = "SELECT role FROM users WHERE email = ? AND password = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            pstmt.setString(2, password);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("role"); // Return the user's role ("user" or "admin")
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error verifying user: " + e.getMessage());
-        }
-        return "none"; // Return "none" if no match is found
-    }
-
-    // Verify if the password matches for the given email
-    public boolean verifyPassword(String email, String password) {
-        String sql = "SELECT 1 FROM users WHERE email = ? AND password = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            pstmt.setString(2, password);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next(); // Returns true if a record is found
-            }
-        } catch (SQLException e) {
-            System.out.println("Error verifying password: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // Update a user's password
-    public boolean updatePassword(String email, String newPassword) {
-        String sql = "UPDATE users SET password = ? WHERE email = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, newPassword);
-            pstmt.setString(2, email);
-            return pstmt.executeUpdate() > 0; // Return true if a row is updated
-        } catch (SQLException e) {
-            System.out.println("Error updating password: " + e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean updateUserDetailsForAdmin(String email, String name, int age, String nic, String role) {
-        // Validate NIC uniqueness
-        if (!isNICUnique(nic, email)) {
-            System.out.println("Error: NIC already exists for another user.");
-            return false;
-        }
-
-        String sql = "UPDATE users SET name = ?, age = ?, nic = ?, role = ? WHERE email = ?";
-
-        if (!emailExists(email)) {
-            System.out.println("Error: Email does not exist in the database.");
-            return false;
-        }
-
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, name);  // Set name
-            pstmt.setInt(2, age);     // Set age
-            pstmt.setString(3, nic);  // Set NIC
-            pstmt.setString(4, role); // Set role
-            pstmt.setString(5, email); // Set email
-
-            int rowsAffected = pstmt.executeUpdate();
-            System.out.println("Rows affected (Admin): " + rowsAffected);
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            System.out.println("Error updating user details (Admin): " + e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean updateUserDetailsForUser(String email, String name, int age, String nic) {
-        // Validate NIC uniqueness
-        if (!isNICUnique(nic, email)) {
-            System.out.println("Error: NIC already exists for another user.");
-            return false;
-        }
-
-        String sql = "UPDATE users SET name = ?, age = ?, nic = ? WHERE email = ?";
-
-        if (!emailExists(email)) {
-            System.out.println("Error: Email does not exist in the database.");
-            return false;
-        }
-
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, name);  // Set name
-            pstmt.setInt(2, age);     // Set age
-            pstmt.setString(3, nic);  // Set NIC
-            pstmt.setString(4, email); // Set email
-
-            int rowsAffected = pstmt.executeUpdate();
-            System.out.println("Rows affected (User): " + rowsAffected);
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            System.out.println("Error updating user details (User): " + e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean emailExists(String email) {
-        String sql = "SELECT 1 FROM users WHERE email = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            System.out.println("Error checking email existence: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // Delete a user from the database
-    public boolean deleteUser(String email) {
-        String sql = "DELETE FROM users WHERE email = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email); // Use email to identify the user
-            return pstmt.executeUpdate() > 0; // Return true if a row is deleted
-        } catch (SQLException e) {
-            System.out.println("Error deleting user: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // Clear user's history
-    public boolean clearHistory(String email) {
-        String sql = "DELETE FROM user_history WHERE email = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.out.println("Error clearing history: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // Fetch a user's NIC based on their email
-    public String getNIC(String email) {
-        String sql = "SELECT nic FROM users WHERE email = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("nic");
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error fetching NIC: " + e.getMessage());
-        }
-        return null;
-    }
-
-    // Get user details by email for a regular user
-    public Reg getRegularUserDetails(String email) {
-        String sql = "SELECT * FROM users WHERE email = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    String nic = rs.getString("nic");
-                    String name = rs.getString("name");
-                    int age = rs.getInt("age");
-                    return new Reg(email, name, age, nic);
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error fetching regular user details: " + e.getMessage());
-        }
-        return null;
-    }
-
-    // Get admin details by email
-    public Admin getAdminDetails(String email) {
-        String sql = "SELECT * FROM users WHERE email = ?";
-        try (Connection conn = connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, email);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    String nic = rs.getString("nic");
-                    String name = rs.getString("name");
-                    int age = rs.getInt("age");
-                    return new Admin(email, name, age, nic);
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error fetching admin details: " + e.getMessage());
-        }
-        return null;
     }
 }

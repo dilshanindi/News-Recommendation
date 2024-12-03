@@ -1,18 +1,16 @@
 package models;
 
-
 public class Admin extends User {
-    public Admin(String name, String email, String nic, int age) {
-        super(name, email, nic, age);
+
+    // Constructor aligned with the User class
+    public Admin(String userId, String name, String email, String password) {
+        super(userId, name, email, password, "admin"); // Call the appropriate User constructor
     }
 
-    public static String getRole() {
-        return "Admin";
-    }
-
+    // Override getRole() as an instance method
     @Override
-    public void displayRole() {
-        System.out.println("Role: Admin");
+    public String getRole() {
+        return "Admin";
     }
 
     // Admin-specific functionality
